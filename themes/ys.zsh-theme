@@ -1,4 +1,5 @@
 # Clean, simple, compatible and meaningful.
+# 
 # Tested on Linux, Unix and Windows under ANSI colors.
 # It is recommended to use with a dark background and the font Inconsolata.
 # Colors: black, red, green, yellow, *blue, magenta, cyan, and white.
@@ -28,7 +29,8 @@ PROMPT="
 %{$fg[white]%}at \
 %{$fg[green]%}$(box_name) \
 %{$fg[white]%}in \
-%{$terminfo[bold]$fg[yellow]%}${current_dir}%{$reset_color%}\
+%{$fg[yellow]%}${current_dir}%{$reset_color%}\
 ${git_info} \
 %{$fg[white]%}[%*]
 %{$terminfo[bold]$fg[red]%}$ %{$reset_color%}"
+
