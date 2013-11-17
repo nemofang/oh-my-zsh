@@ -3,6 +3,7 @@ alias bl="bundle list"
 alias bp="bundle package"
 alias bo="bundle open"
 alias bu="bundle update"
+alias bc="bundle config"
 
 bundler_version=`bundle version | cut -d' ' -f3`
 if [[ $bundler_version > '1.4.0' || $bundler_version = '1.4.0' ]]; then

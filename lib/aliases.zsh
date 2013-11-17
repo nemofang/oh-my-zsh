@@ -1,17 +1,5 @@
-# Easier navigation: .., ..., ~ and -
-alias ..="cd .."
-alias cd..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
-alias .....="cd ../../../.."
-alias ~="cd ~" # `cd` is probably faster to type though
-alias -- -="cd -"
-
 # cl as clear shortcut
 alias cl="clear"
-
-# grep
-alias grep="grep --color=auto"
 
 # be nice
 alias please=sudo
