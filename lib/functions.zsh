@@ -1,3 +1,20 @@
+# Easier to startup the development env
+function community() {
+  cd $HOME/StyleSaint/community/sites/community
+  bundle exec rails s -p 3001
+}
+
+function ecom() {
+  cd $HOME/StyleSaint/puma
+  bundle exec rails s -p 3001
+}
+
+function filterby(){
+  cd $HOME/Filteredby/filtered-by
+  bundle exec rails s -p 3000
+}
+# End
+
 function zsh_stats() {
   history | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n20
 }
