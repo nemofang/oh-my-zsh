@@ -1,3 +1,8 @@
+# Easier startup development env
+alias puma="be rails s -p 3002"
+alias community="be rails s -p 3001"
+alias filterby="be rails s -p 3000"
+
 # cl as clear shortcut
 alias cl="clear"
 
