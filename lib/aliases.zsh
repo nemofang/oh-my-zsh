@@ -1,3 +1,7 @@
+# Alias for zsh config and edit
+alias zshconfig="subl ~/.zshrc"
+alias ohmyzsh="subl ~/.oh-my-zsh"
+
 # cl as clear shortcut
 alias cl="clear"
 
