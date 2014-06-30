@@ -11,7 +11,7 @@ function ecom() {
 
 function filterby(){
   cd $HOME/Filteredby/filtered-by
-  bundle exec rails s -p 3000
+  bundle exec rails s -p 3003
 }
 # End
 
