@@ -1,6 +1,3 @@
-# Open current directory by default for subl
-alias subl="subl ."
-
 # Alias for zsh config and edit
 alias zshconfig="subl ~/.zshrc"
 alias ohmyzsh="subl ~/.oh-my-zsh"

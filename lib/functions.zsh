@@ -1,16 +1,16 @@
 # Easier to startup the development env
 function community() {
-  cd $HOME/StyleSaint/community/sites/community
+  cd $HOME/Projects/community/sites/community
   bundle exec rails s -p 3001
 }
 
 function ecom() {
-  cd $HOME/StyleSaint/puma
+  cd $HOME/Projects/puma
   bundle exec rails s -p 3002
 }
 
 function filterby(){
-  cd $HOME/Filteredby/filtered-by
+  cd $HOME/Projects/filtered-by
   bundle exec rails s -p 3003
 }
 # End
