@@ -111,5 +111,5 @@ alias shutdown='sudo shutdown -h now'
 alias restart='sudo shutdown -r now'
 
 # Emacs stuff
-alias emacs="/usr/local/Cellar/emacs/HEAD/Emacs.app/Contents/MacOS/Emacs -nw"
+alias emacs="/usr/local/Cellar/emacs/24.5/Emacs.app/Contents/MacOS/Emacs -nw"
 
