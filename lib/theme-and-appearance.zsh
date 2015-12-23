@@ -1,20 +1,24 @@
 # ls colors
 autoload colors; colors;
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
-#export LS_COLORS
+# here's LS_COLORS
+# github.com/trapd00r/LS_COLORS
+command -v gdircolors >/dev/null 2>&1 || alias gdircolors="dircolors"
+eval "$(gdircolors -b ~/.dircolors)"
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
-# Enable ls colors
-if [ "$DISABLE_LS_COLORS" != "true" ]
-then
-  # Find the option for using colors in ls, depending on the version: Linux or BSD
-  if [[ "$(uname -s)" == "NetBSD" ]]; then
-    # On NetBSD, test if "gls" (GNU ls) is installed (this one supports colors); 
-    # otherwise, leave ls as is, because NetBSD's ls doesn't support -G
-    gls --color -d . &>/dev/null 2>&1 && alias ls='gls --color=tty'
-  else
-    ls --color -d . &>/dev/null 2>&1 && alias ls='ls --color=tty' || alias ls='ls -G'
-  fi
-fi
+# time to upgrade `ls`
+# use coreutils `ls` if possible…
+hash gls >/dev/null 2>&1 || alias gls="ls"
+
+# always use color, even when piping (to awk,grep,etc)
+if gls --color > /dev/null 2>&1; then colorflag="--color"; else colorflag="-G"; fi;
+export CLICOLOR_FORCE=1
+
+# ls options: A = include hidden (but not . or ..), F = put `/` after folders, h = byte unit suffixes
+alias ls='gls -AFh ${colorflag} --group-directories-first'
+alias lsd='ls -l | grep "^d"' # only directories
+alias ll='ls -l'
+# `la` defined in functions.zsh
 
 #setopt no_beep
 setopt auto_cd
@@ -30,12 +34,6 @@ fi
 
 # Apply theming defaults
 PS1="%n@%m:%~%# "
-
-# git theming default: Variables for theming the git info prompt
-ZSH_THEME_GIT_PROMPT_PREFIX="git:("         # Prefix at the very beginning of the prompt, before the branch name
-ZSH_THEME_GIT_PROMPT_SUFFIX=")"             # At the very end of the prompt
-ZSH_THEME_GIT_PROMPT_DIRTY="*"              # Text to display if the branch is dirty
-ZSH_THEME_GIT_PROMPT_CLEAN=""               # Text to display if the branch is clean
 
 # Setup the prompt with pretty colors
 setopt prompt_subst

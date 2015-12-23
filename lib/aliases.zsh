@@ -1,115 +1,105 @@
-# Alias for zsh config and edit
+# Alias for zsh config, edit and reload
 alias zshconfig="subl ~/.zshrc"
 alias ohmyzsh="subl ~/.oh-my-zsh"
+alias zshreload="source ~/.zshrc"
+
+# General alias
 
 # cl as clear shortcut
 alias cl="clear"
 
-# be nice
-alias please=sudo
-alias hosts='sudo $EDITOR /etc/hosts'   # yes I occasionally 127.0.0.1 twitter.com ;)
+# rm
+alias rm='rm -i'
 
-# Push and pop directories on directory stack
-alias pu='pushd'
-alias po='popd'
-
-# Show history
-alias history='fc -l 1'
-
-alias afind='ack-grep -il'
-
-# Detect which `ls` flavor is in use
-if ls --color > /dev/null 2>&1; then # GNU `ls`
-        colorflag="--color"
-else # OS X `ls`
-        colorflag="-G"
+# Tree
+if [ ! -x "$(which tree 2>/dev/null)" ]
+then
+  alias tree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
 fi
 
-# List all files colorized in long format
-alias ll="ls -l ${colorflag}"
-
-# List all files colorized in long format, including dot files
-alias la="ls -la ${colorflag}"
-
-# List only directories
-alias lsd='ls -l | grep "^d"'
-
-# Always use color output for `ls`
-if [[ "$OSTYPE" =~ ^darwin ]]; then
-        alias ls="command ls -G"
-else
-        alias ls="command ls --color"
-        export LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
-fi
-
-# `cat` with beautiful colors. requires Pygments installed.
-# sudo easy_install Pygments
+# `cat` with beautiful colors. requires: sudo easy_install -U Pygments
 alias c='pygmentize -O style=monokai -f console256 -g'
 
-# GIT STUFF
+# One of @janmoesen’s ProTip™s
+for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
+  alias "$method"="lwp-request -m '$method'"
+done
 
-# Undo a `git push`
-alias undopush="git push -f origin HEAD^:master"
-
-# IP addresses
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias localip="ipconfig getifaddr en0"
-alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
-
-# Enhanced WHOIS lookups
-alias whois="whois -h whois-servers.net"
-
-# Flush Directory Service cache
-alias flush="dscacheutil -flushcache"
-
-# View HTTP traffic
-alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
-alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+# Display whatever file is regular file or folder
+catt() {
+  for i in "$@"; do
+    if [ -d "$i" ]; then
+      ls "$i"
+    else
+      c "$i"
+    fi
+  done
+}
 
 # Trim new lines and copy to clipboard
 alias trimcopy="tr -d '\n' | pbcopy"
 
-# Recursively delete `.DS_Store` files
-alias cleanup="find . -name '*.DS_Store' -type f -ls -delete"
-
-# Shortcuts
-alias g="git"
-alias v="vim"
-
 # File size
 alias fs="stat -f \"%z bytes\""
 
-# ROT13-encode text. Works for decoding, too! ;)
-alias rot13='tr a-zA-Z n-za-mN-ZA-M'
-
-# Empty the Trash on all mounted volumes and the main HDD
-alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; rm -rfv ~/.Trash"
-
-# Hide/show all desktop icons (useful when presenting)
-alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
-alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
-
-
-# PlistBuddy alias, because sometimes `defaults` just doesn’t cut it
-alias plistbuddy="/usr/libexec/PlistBuddy"
-
 # One of @janmoesen’s ProTip™s
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-        alias "$method"="lwp-request -m '$method'"
+  alias "$method"="lwp-request -m '$method'"
 done
-
-# Stuff I never really use but cannot delete either because of http://xkcd.com/530/
-alias stfu="osascript -e 'set volume output muted true'"
-alias pumpitup="osascript -e 'set volume 10'"
-alias hax="growlnotify -a 'Activity Monitor' 'System error' -m 'WTF R U DOIN'"
 
 # Alias top to htop for better looking and easy reading top info
 if [[ -x `which htop` ]]; then alias top="htop"; fi
 
-# Shutdown or restart
-alias shutdown='sudo shutdown -h now'
-alias restart='sudo shutdown -r now'
+# Emacs alias
+alias emacs="/usr/local/bin/emacs -nw"
 
-# Emacs stuff
-alias emacs="/usr/local/Cellar/emacs/24.5/Emacs.app/Contents/MacOS/Emacs -nw"
+################################
+# Brew Cask alias              #
+################################
+alias cask='brew cask' # i <3 u cask
+alias bcup='brew-cask update'
+alias bcin='brew-cask install'
+alias bcrm='brew-cask uninstall'
+alias bczp='brew-cask zap'
+alias bccl='brew-cask cleanup'
+alias bcsr='brew-cask search'
+alias bcls='brew-cask list'
+alias bcinf='brew-cask info'
+alias bcdr='brew-cask doctor'
+alias bced='brew-cask edit'
 
+################################
+# Docker alias                 #
+################################
+alias dklc='docker ps -l'  # List last Docker container
+alias dklcid='docker ps -l -q'  # List last Docker container ID
+alias dklcip='docker inspect -f "{{.NetworkSettings.IPAddress}}" $(docker ps -l -q)'  # Get IP of last Docker container
+alias dkps='docker ps'  # List running Docker containers
+alias dkpsa='docker ps -a'  # List all Docker containers
+alias dki='docker images'  # List Docker images
+alias dkrmac='docker rm $(docker ps -a -q)'  # Delete all Docker containers
+alias dkrmlc='docker-remove-most-recent-container'  # Delete most recent (i.e., last) Docker container
+alias dkrmui='docker images -q -f dangling=true |xargs -r docker rmi'  # Delete all untagged Docker images
+alias dkrmli='docker-remove-most-recent-image'  # Delete most recent (i.e., last) Docker image
+alias dkrmi='docker-remove-images'  # Delete images for supplied IDs or all if no IDs are passed as arguments
+alias dkideps='docker-image-dependencies'  # Output a graph of image dependencies using Graphiz
+alias dkre='docker-runtime-environment'  # List environmental variables of the supplied image ID
+alias dkelc='docker exec -it `dklcid` bash' # Enter last container (works with Docker 1.3 and above)
+
+################################
+# Nginx alias                  #
+################################
+alias nginx_start='nginx'
+alias nginx_stop='nginx -s stop'
+alias nginx_reload='nginx -s reload'
+
+# Other
+which gshuf &> /dev/null
+if [ $? -eq 0 ]
+then
+  alias shuf=gshuf
+fi
+
+alias edit="$EDITOR"
+alias pager="$PAGER"
+alias q='exit'

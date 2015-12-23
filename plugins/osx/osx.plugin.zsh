@@ -5,29 +5,89 @@
 #       VERSION:  1.1.0
 # ------------------------------------------------------------------------------
 
-function tab() {
-  local command="cd \\\"$PWD\\\"; clear; "
-  (( $# > 0 )) && command="${command}; $*"
+# Desktop Programs
+alias safari="open -a safari"
+alias firefox="open -a firefox"
+alias chrome="open -a google\ chrome"
+alias f='open -a Finder .'
+alias notes='open -a notes'
+alias skype='open -a Skype'
+alias mou='open -a Mou'
+alias sublime="open -a 'Sublime Text' ."
+alias zoom='open -a zoom.us'
+alias music='open -a neteasemusic'
 
-  the_app=$(
+if [ -s /usr/bin/firefox ] ; then
+  unalias firefox
+fi
+
+# Get rid of those pesky .DS_Store files recursively
+alias dsclean='find . -type f -name .DS_Store -delete'
+
+# Empty the Trash on all mounted volumes and the main HDD
+alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; rm -rfv ~/.Trash"
+
+# Flush your dns cache
+alias flush='dscacheutil -flushcache'
+
+# Show/hide hidden files (for Mac OS X Mavericks)
+alias showhidden="defaults write com.apple.finder AppleShowAllFiles TRUE"
+alias hidehidden="defaults write com.apple.finder AppleShowAllFiles FALSE"
+
+# Networking. IP address, dig, DNS
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias localip="ipconfig getifaddr en0"
+alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
+
+# From http://apple.stackexchange.com/questions/110343/copy-last-command-in-terminal
+alias copyLastCmd='fc -ln -1 | awk '\''{$1=$1}1'\'' ORS='\'''\'' | pbcopy'
+
+# Use Finder's Quick Look on a file (^C or space to close)
+alias ql='qlmanage -p 2>/dev/null'
+
+# Mute/Unmute the system volume. Plays nice with all other volume settings.
+alias mute="osascript -e 'set volume output muted true'"
+alias unmute="osascript -e 'set volume output muted false'"
+
+alias hosts='sudo $EDITOR /etc/hosts'   # yes I occasionally 127.0.0.1 twitter.com ;)
+
+# Pin to the tail of long commands for an audible alert after long processes
+## curl http://downloads.com/hugefile.zip; lmk
+alias lmk="say 'Process complete.'"
+
+# Shutdown or restart
+alias shutdown='sudo shutdown -h now'
+alias restart='sudo shutdown -r now'
+
+function _omz_osx_get_frontmost_app() {
+  local the_app=$(
     osascript 2>/dev/null <<EOF
       tell application "System Events"
         name of first item of (every process whose frontmost is true)
       end tell
 EOF
   )
+  echo "$the_app"
+}
 
-  [[ "$the_app" == 'Terminal' ]] && {
-    osascript 2>/dev/null <<EOF
+function tab() {
+  # Must not have trailing semicolon, for iTerm compatibility
+  local command="cd \\\"$PWD\\\"; clear"
+  (( $# > 0 )) && command="${command}; $*"
+
+  local the_app=$(_omz_osx_get_frontmost_app)
+
+  if [[ "$the_app" == 'Terminal' ]]; then
+    # Discarding stdout to quash "tab N of window id XXX" output
+    osascript >/dev/null <<EOF
       tell application "System Events"
         tell process "Terminal" to keystroke "t" using command down
-        tell application "Terminal" to do script "${command}" in front window
       end tell
+      tell application "Terminal" to do script "${command}" in front window
 EOF
-  }
 
-  [[ "$the_app" == 'iTerm' ]] && {
-    osascript 2>/dev/null <<EOF
+  elif [[ "$the_app" == 'iTerm' ]]; then
+    osascript <<EOF
       tell application "iTerm"
         set current_terminal to current terminal
         tell current_terminal
@@ -39,24 +99,23 @@ EOF
         end tell
       end tell
 EOF
-  }
+
+  else
+    echo "tab: unsupported terminal app: $the_app"
+    false
+
+  fi
 }
 
 function vsplit_tab() {
-  local command="cd \\\"$PWD\\\""
+  local command="cd \\\"$PWD\\\"; clear"
   (( $# > 0 )) && command="${command}; $*"
 
-  the_app=$(
-    osascript 2>/dev/null <<EOF
-      tell application "System Events"
-        name of first item of (every process whose frontmost is true)
-      end tell
-EOF
-  )
+  local the_app=$(_omz_osx_get_frontmost_app)
 
-  [[ "$the_app" == 'iTerm' ]] && {
-    osascript 2>/dev/null <<EOF
-      tell application "iTerm" to activate
+  if [[ "$the_app" == 'iTerm' ]]; then
+    osascript <<EOF
+      -- tell application "iTerm" to activate
 
       tell application "System Events"
         tell process "iTerm"
@@ -64,26 +123,24 @@ EOF
             click
           end tell
         end tell
-        keystroke "${command}; clear;"
-        keystroke return
+        keystroke "${command} \n"
       end tell
 EOF
-  }
+
+  else
+    echo "$0: unsupported terminal app: $the_app" >&2
+    false
+
+  fi
 }
 
 function split_tab() {
-  local command="cd \\\"$PWD\\\""
+  local command="cd \\\"$PWD\\\"; clear"
   (( $# > 0 )) && command="${command}; $*"
 
-  the_app=$(
-    osascript 2>/dev/null <<EOF
-      tell application "System Events"
-        name of first item of (every process whose frontmost is true)
-      end tell
-EOF
-  )
+  local the_app=$(_omz_osx_get_frontmost_app)
 
-  [[ "$the_app" == 'iTerm' ]] && {
+  if [[ "$the_app" == 'iTerm' ]]; then
     osascript 2>/dev/null <<EOF
       tell application "iTerm" to activate
 
@@ -93,11 +150,15 @@ EOF
             click
           end tell
         end tell
-        keystroke "${command}; clear;"
-        keystroke return
+        keystroke "${command} \n"
       end tell
 EOF
-  }
+
+  else
+    echo "$0: unsupported terminal app: $the_app" >&2
+    false
+
+  fi
 }
 
 function pfd() {
@@ -137,57 +198,13 @@ function man-preview() {
   man -t "$@" | open -f -a Preview
 }
 
-function trash() {
-  local trash_dir="${HOME}/.Trash"
-  local temp_ifs=$IFS
-  IFS=$'\n'
-  for item in "$@"; do
-    if [[ -e "$item" ]]; then
-      item_name="$(basename $item)"
-      if [[ -e "${trash_dir}/${item_name}" ]]; then
-        mv -f "$item" "${trash_dir}/${item_name} $(date "+%H-%M-%S")"
-      else
-        mv -f "$item" "${trash_dir}/"
-      fi
-    fi
-  done
-  IFS=$temp_ifs
-}
-
 function vncviewer() {
   open vnc://$@
 }
 
-# iTunes control function
-function itunes() {
-	local opt=$1
-	shift
-	case "$opt" in
-		launch|play|pause|stop|rewind|resume|quit)
-			;;
-		mute)
-			opt="set mute to true"
-			;;
-		unmute)
-			opt="set mute to false"
-			;;
-		next|previous)
-			opt="$opt track"
-			;;
-		""|-h|--help)
-			echo "Usage: itunes <option>"
-			echo "option:"
-			echo "\tlaunch|play|pause|stop|rewind|resume|quit"
-			echo "\tmute|unmute\tcontrol volume set"
-			echo "\tnext|previous\tplay next or previous track"
-			echo "\thelp\tshow this message and exit"
-			return 0
-			;;
-		*)
-			print "Unkonwn option: $opt"
-			return 1
-			;;
-	esac
-	osascript -e "tell application \"iTunes\" to $opt"
+# `shellswitch [bash | zsh]`
+#  Must be in /etc/shells
+function shellswitch () {
+  chsh -s $(brew --prefix)/bin/$1
 }
 

@@ -4,12 +4,13 @@ setopt auto_pushd
 setopt pushd_ignore_dups
 setopt pushdminus
 
-alias ..='cd ..'
-alias cd..='cd ..'
-alias cd...='cd ../..'
-alias cd....='cd ../../..'
-alias cd.....='cd ../../../..'
-alias cd/='cd /'
+alias ..="cd .."
+alias cd..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ~="cd ~" # `cd` is probably faster to type though
+alias -- -="cd -"
 
 alias 1='cd -'
 alias 2='cd -2'
@@ -40,3 +41,4 @@ cd () {
 
 alias rd=rmdir
 alias d='dirs -v | head -10'
+alias mp='mkdir -p'

@@ -7,12 +7,3 @@ bindkey "^[m" copy-prev-shell-word
 
 ## jobs
 setopt long_list_jobs
-
-## pager
-export PAGER="less"
-export LESS="-R"
-
-export LC_CTYPE=$LANG
-
-# Make vim the default editor
-export EDITOR="vim"
