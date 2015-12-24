@@ -53,6 +53,10 @@ if [[ -x `which htop` ]]; then alias top="htop"; fi
 # Emacs alias
 alias emacs="/usr/local/bin/emacs -nw"
 
+# Other
+alias edit="$EDITOR"
+alias q='exit'
+
 ################################
 # Brew Cask alias              #
 ################################
@@ -99,7 +103,3 @@ if [ $? -eq 0 ]
 then
   alias shuf=gshuf
 fi
-
-alias edit="$EDITOR"
-alias pager="$PAGER"
-alias q='exit'
