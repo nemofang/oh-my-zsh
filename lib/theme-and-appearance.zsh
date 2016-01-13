@@ -18,6 +18,7 @@ export CLICOLOR_FORCE=1
 alias ls='gls -AFh ${colorflag} --group-directories-first'
 alias lsd='ls -l | grep "^d"' # only directories
 alias ll='ls -l'
+alias la='ll'
 # `la` defined in functions.zsh
 
 #setopt no_beep
