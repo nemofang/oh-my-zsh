@@ -37,7 +37,7 @@ function md() {
 }
 
 # find shorthand
-function f() {
+function fc() {
   find . -name "$1"
 }
 
