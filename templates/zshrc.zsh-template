@@ -42,3 +42,6 @@ esac
 plugins=(brew bundler colored-man copydir copyfile cp extract gem git history rails rake ruby rvm tmux web-search z)
 
 source $ZSH/oh-my-zsh.sh
+
+# Auto config Shell for Docker client
+eval $(docker-machine env default)
