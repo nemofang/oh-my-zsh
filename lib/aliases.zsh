@@ -103,3 +103,12 @@ if [ $? -eq 0 ]
 then
   alias shuf=gshuf
 fi
+
+# Get week number
+alias week='date +%V'
+
+# Reload the shell (i.e. invoke as a login shell)
+alias reload="exec $SHELL -l"
+
+# Print each PATH entry on a separate line
+alias path='echo -e ${PATH//:/\\n}'
