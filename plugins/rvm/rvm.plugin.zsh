@@ -1,25 +1,59 @@
 fpath=($rvm_path/scripts/zsh/Completion $fpath)
 
-# Load RVM, if you are using it
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-
 alias rubies='rvm list rubies'
 alias gemsets='rvm gemset list'
 
-function rubies {
-  rvm list
+local ruby18='ruby-1.8.7'
+local ruby19='ruby-1.9.3'
+local ruby20='ruby-2.0.0'
+local ruby21='ruby-2.1.2'
+
+function rb18 {
+	if [ -z "$1" ]; then
+		rvm use "$ruby18"
+	else
+		rvm use "$ruby18@$1"
+	fi
 }
 
-function switch_ruby {
-  rvm use $1
+_rb18() {compadd `ls -1 $rvm_path/gems | grep "^$ruby18@" | sed -e "s/^$ruby18@//" | awk '{print $1}'`}
+compdef _rb18 rb18
+
+function rb19 {
+	if [ -z "$1" ]; then
+		rvm use "$ruby19"
+	else
+		rvm use "$ruby19@$1"
+	fi
 }
 
-function switch_default_ruby {
-  rvm --default $1
+_rb19() {compadd `ls -1 $rvm_path/gems | grep "^$ruby19@" | sed -e "s/^$ruby19@//" | awk '{print $1}'`}
+compdef _rb19 rb19
+
+function rb20 {
+	if [ -z "$1" ]; then
+		rvm use "$ruby20"
+	else
+		rvm use "$ruby20@$1"
+	fi
 }
+
+_rb20() {compadd `ls -1 $rvm_path/gems | grep "^$ruby20@" | sed -e "s/^$ruby20@//" | awk '{print $1}'`}
+compdef _rb20 rb20
+
+function rb21 {
+	if [ -z "$1" ]; then
+		rvm use "$ruby21"
+	else
+		rvm use "$ruby21@$1"
+	fi
+}
+
+_rb21() {compadd `ls -1 $rvm_path/gems | grep "^$ruby21@" | sed -e "s/^$ruby21@//" | awk '{print $1}'`}
+compdef _rb21 rb21
 
 function rvm-update {
-	rvm get stable --auto-dotfiles
+	rvm get head
 }
 
 # TODO: Make this usable w/o rvm.

@@ -1,73 +1,22 @@
-# ------------------------------------------------------------------------------
-#          FILE:  osx.plugin.zsh
-#   DESCRIPTION:  oh-my-zsh plugin file.
-#        AUTHOR:  Sorin Ionescu (sorin.ionescu@gmail.com)
-#       VERSION:  1.1.0
-# ------------------------------------------------------------------------------
+# Open the current directory in a Finder window
+alias ofd='open_command $PWD'
 
-# Desktop Programs
-alias safari="open -a safari"
-alias firefox="open -a firefox"
-alias chrome="open -a google\ chrome"
-alias f='open -a Finder .'
-alias notes='open -a notes'
-alias skype='open -a Skype'
-alias mou='open -a Mou'
-alias sublime="open -a 'Sublime Text' ."
-alias zoom='open -a zoom.us'
-alias music='open -a neteasemusic'
+# Show/hide hidden files in the Finder
+alias showfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+alias hidefiles="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 
-if [ -s /usr/bin/firefox ] ; then
-  unalias firefox
-fi
-
-# Get rid of those pesky .DS_Store files recursively
-alias dsclean='find . -type f -name .DS_Store -delete'
-
-# Empty the Trash on all mounted volumes and the main HDD
-alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; rm -rfv ~/.Trash"
-
-# Flush your dns cache
-alias flush='dscacheutil -flushcache'
-
-# Show/hide hidden files (for Mac OS X Mavericks)
-alias showhidden="defaults write com.apple.finder AppleShowAllFiles TRUE"
-alias hidehidden="defaults write com.apple.finder AppleShowAllFiles FALSE"
-
-# Networking. IP address, dig, DNS
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias localip="ipconfig getifaddr en0"
-alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
-
-# From http://apple.stackexchange.com/questions/110343/copy-last-command-in-terminal
-alias copyLastCmd='fc -ln -1 | awk '\''{$1=$1}1'\'' ORS='\'''\'' | pbcopy'
-
-# Use Finder's Quick Look on a file (^C or space to close)
-alias ql='qlmanage -p 2>/dev/null'
-
-# Mute/Unmute the system volume. Plays nice with all other volume settings.
-alias mute="osascript -e 'set volume output muted true'"
-alias unmute="osascript -e 'set volume output muted false'"
-
-alias hosts='sudo $EDITOR /etc/hosts'   # yes I occasionally 127.0.0.1 twitter.com ;)
-
-# Pin to the tail of long commands for an audible alert after long processes
-## curl http://downloads.com/hugefile.zip; lmk
-alias lmk="say 'Process complete.'"
-
-# Shutdown or restart
-alias shutdown='sudo shutdown -h now'
-alias restart='sudo shutdown -r now'
+# Bluetooth restart
+function btrestart() {
+  sudo kextunload -b com.apple.iokit.BroadcomBluetoothHostControllerUSBTransport
+  sudo kextload -b com.apple.iokit.BroadcomBluetoothHostControllerUSBTransport
+}
 
 function _omz_osx_get_frontmost_app() {
-  local the_app=$(
-    osascript 2>/dev/null <<EOF
-      tell application "System Events"
-        name of first item of (every process whose frontmost is true)
-      end tell
+  osascript 2>/dev/null <<EOF
+    tell application "System Events"
+      name of first item of (every process whose frontmost is true)
+    end tell
 EOF
-  )
-  echo "$the_app"
 }
 
 function tab() {
@@ -85,7 +34,6 @@ function tab() {
       end tell
       tell application "Terminal" to do script "${command}" in front window
 EOF
-
   elif [[ "$the_app" == 'iTerm' ]]; then
     osascript <<EOF
       tell application "iTerm"
@@ -99,11 +47,29 @@ EOF
         end tell
       end tell
 EOF
-
+  elif [[ "$the_app" == 'iTerm2' ]]; then
+    osascript <<EOF
+      tell application "iTerm2"
+        tell current window
+          create tab with default profile
+          tell current session to write text "${command}"
+        end tell
+      end tell
+EOF
+  elif [[ "$the_app" == 'Hyper' ]]; then
+    osascript >/dev/null <<EOF
+      tell application "System Events"
+        tell process "Hyper" to keystroke "t" using command down
+      end tell
+      delay 1
+      tell application "System Events"
+        keystroke "${command}"
+        key code 36  #(presses enter)
+      end tell
+EOF
   else
-    echo "tab: unsupported terminal app: $the_app"
-    false
-
+    echo "$0: unsupported terminal app: $the_app" >&2
+    return 1
   fi
 }
 
@@ -116,7 +82,6 @@ function vsplit_tab() {
   if [[ "$the_app" == 'iTerm' ]]; then
     osascript <<EOF
       -- tell application "iTerm" to activate
-
       tell application "System Events"
         tell process "iTerm"
           tell menu item "Split Vertically With Current Profile" of menu "Shell" of menu bar item "Shell" of menu bar 1
@@ -126,11 +91,33 @@ function vsplit_tab() {
         keystroke "${command} \n"
       end tell
 EOF
-
+  elif [[ "$the_app" == 'iTerm2' ]]; then
+    osascript <<EOF
+      tell application "iTerm2"
+        tell current session of first window
+          set newSession to (split vertically with same profile)
+          tell newSession
+            write text "${command}"
+            select
+          end tell
+        end tell
+      end tell
+EOF
+  elif [[ "$the_app" == 'Hyper' ]]; then
+    osascript >/dev/null <<EOF
+    tell application "System Events"
+      tell process "Hyper"
+        tell menu item "Split Vertically" of menu "Shell" of menu bar 1
+          click
+        end tell
+      end tell
+      delay 1
+      keystroke "${command} \n"
+    end tell
+EOF
   else
     echo "$0: unsupported terminal app: $the_app" >&2
-    false
-
+    return 1
   fi
 }
 
@@ -153,18 +140,40 @@ function split_tab() {
         keystroke "${command} \n"
       end tell
 EOF
-
+  elif [[ "$the_app" == 'iTerm2' ]]; then
+    osascript <<EOF
+      tell application "iTerm2"
+        tell current session of first window
+          set newSession to (split horizontally with same profile)
+          tell newSession
+            write text "${command}"
+            select
+          end tell
+        end tell
+      end tell
+EOF
+  elif [[ "$the_app" == 'Hyper' ]]; then
+    osascript >/dev/null <<EOF
+    tell application "System Events"
+      tell process "Hyper"
+        tell menu item "Split Horizontally" of menu "Shell" of menu bar 1
+          click
+        end tell
+      end tell
+      delay 1
+      keystroke "${command} \n"
+    end tell
+EOF
   else
     echo "$0: unsupported terminal app: $the_app" >&2
-    false
-
+    return 1
   fi
 }
 
 function pfd() {
   osascript 2>/dev/null <<EOF
     tell application "Finder"
-      return POSIX path of (target of window 1 as alias)
+      return POSIX path of (insertion location as alias)
     end tell
 EOF
 }
@@ -190,6 +199,21 @@ function pushdf() {
   pushd "$(pfd)"
 }
 
+function pxd() {
+  dirname $(osascript 2>/dev/null <<EOF
+    if application "Xcode" is running then
+      tell application "Xcode"
+        return path of active workspace document
+      end tell
+    end if
+EOF
+)
+}
+
+function cdx() {
+  cd "$(pxd)"
+}
+
 function quick-look() {
   (( $# > 0 )) && qlmanage -p $* &>/dev/null &
 }
@@ -197,14 +221,19 @@ function quick-look() {
 function man-preview() {
   man -t "$@" | open -f -a Preview
 }
+compdef _man man-preview
 
 function vncviewer() {
   open vnc://$@
 }
 
-# `shellswitch [bash | zsh]`
-#  Must be in /etc/shells
-function shellswitch () {
-  chsh -s $(brew --prefix)/bin/$1
+# Remove .DS_Store files recursively in a directory, default .
+function rmdsstore() {
+  find "${@:-.}" -type f -name .DS_Store -delete
 }
 
+# Music / iTunes control function
+source "${0:h:A}/music"
+
+# Spotify control function
+source "${0:h:A}/spotify"
